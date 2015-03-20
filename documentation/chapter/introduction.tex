@@ -1,0 +1,47 @@
+\section{Introduction}
+
+This tutorial let you build a scorecard application. Seminars and lectures can be added and then voted up or down. An overview page shows the courses ranked by the votes. This tutorial was build for the TUM seminar Webtech within the summer term 2015. Refer to \url{https://wwwmatthes.in.tum.de/pages/g78qcvnwz3u3/Web-Technologies-Frameworks-Libraries-and-Plattforms} for more information.
+
+\subsection{Requirements}
+
+To go through this tutorial you will need an installation of Python 3 with Django 1.7. You will probably get Python by your package manager. For help installing Django you should definitely check out \url{https://docs.djangoproject.com/en/1.7/intro/install/}. If you encounter any problems during this tutorial, refer back to that page. There is a lot of further information there.
+
+\subsection{Setup}
+You can either clone the application from GitHub or create it yourself.
+
+\subsubsection{Clone}
+To get the application from the GitHub use:
+\begin{lstlisting}[style=Bash, caption=Clone application, label=lst:clone_app]
+git clone https://github.com/Phylu/webtech-django2.git
+\end{lstlisting}
+
+\subsubsection{Create}
+If you want to start from scratch, create your development directory and create the application yourself. The application will be stored within the directory scorecard.
+\begin{lstlisting}[style=Bash, caption=Create application, label=lst:create_app]
+django-admin startproject webtech
+cd webtech
+./manage.py startapp scorecard
+./manage.py migrate
+\end{lstlisting}
+
+Edit the file \emph{webtech/settings.py} and add your newly created django app.
+
+\begin{lstlisting}[style=Python, caption=Register application, label=lst:register_app]
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'scorecard',
+)
+\end{lstlisting}
+
+You might need to create some directories and template files yourself if you do not use the template from GitHub. This is currently not supported and most likely will never be.
+
+\subsection{Test the application}
+To start the server run the following command. You can then access the django application in your browser via \url{http://127.0.0.1:8000/scorecard}
+\begin{lstlisting}[style=Bash, caption=Run development server, label=lst:run_server]
+./manage.py runserver
+\end{lstlisting}

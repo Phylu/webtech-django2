@@ -1,0 +1,63 @@
+\section{Models}
+
+\subsection{Course model}
+Within models information is stored for the web application. We use one model witch stores a course and the number of votes it got. A positive vote increases the vote counter. A negative vote decreases it. Create the file \emph{scorecard/course.py} and fill it with the following content:
+
+\begin{lstlisting}[style=Python, caption=scorecard/models.py, label=lst:models.py]
+from django.db import models
+
+class Course(models.Model):
+    """
+    This class stores the information about one course
+    course_title    is the field which stores the title of a course
+    vote            is the number of votes a course got
+    pk              is created automatically as the primary key
+    """
+    course_title = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+\end{lstlisting}
+
+Now the model has to be registered. Run:
+\begin{lstlisting}[style=Bash, caption=Register models, label=lst:register_models]
+./manage.py makemigrations scorecard
+./manage.py migrate
+\end{lstlisting}
+
+\subsection{Admin app for editing models}
+If you try to access your django application (\url{http://127.0.0.1:8000/scorecard}, you remember?), you will get an error message. We have not yet defined the framework to show anything. To see if your model was propperly created and interact with it, django provides an admin interface in its package django.contrib.admin. This one is activated by default if you create a new django application.
+
+Within the admin interface the new model needs to be enabled. You can do this by adding the model to the file \emph{scorecard/admin.py}
+\begin{lstlisting}[style=Python, caption=scorecard/admin.py, label=lst:admin.py]
+from django.contrib import admin
+from scorecard.models import Course
+
+admin.site.register(Course)
+\end{lstlisting}
+
+
+To access it, you need to create a user first (In the version from github, the credentials are admin:admin). Run:
+\begin{lstlisting}[style=Bash, caption=Create superuser, label=lst:create_superuser]
+./manage.py createsuperuser
+\end{lstlisting}
+Now you can access \url{http://127.0.0.1:8000/admin} and create some courses as you like. As you can see, the course overview is not named nicely. This is because django does not know how to convert the course objects to a string. Add a \lstinline|__str__| method to the model to solve this.
+
+\begin{lstlisting}[style=Python, caption=scorecard/models.py, label=lst:models.py]
+from django.db import models
+
+class Course(models.Model):
+    """
+    This class stores the information about one course
+    course_title    is the field which stores the title of a course
+    vote            is the number of votes a course got
+    pk              is created automatically as the primary key
+    """
+    course_title = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+
+    def __str__(self):
+        """
+        Convert a Course Model to a human readable string
+        :return: Returns the title of the course
+        """
+        return self.course_title
+\end{lstlisting}
