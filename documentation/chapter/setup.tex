@@ -1,0 +1,25 @@
+\section{Introduction}
+
+\subsection{Requirements}
+
+To go through this tutorial you will need an installation of Python 3 with Django 1.7. You will probably get Python by your package manager. For help installing Django you should definitely check out \url{https://docs.djangoproject.com/en/1.7/intro/install/}. If you encounter any problems during this tutorial, refer back to that page. There is a lot of further information there.
+
+\subsection{Setup}
+To get the application from the GitHub use:
+\begin{lstlisting}[style=Bash, caption=Clone application, label=lst:clone_app]
+git clone https://github.com/Phylu/webtech-django2.git
+\end{lstlisting}
+
+If you want to start from scratch, create your development directory and create the application yourself. The application will be stored within the directory XXX
+\begin{lstlisting}[style=Bash, caption=Create application, label=lst:create_app]
+django-admin startproject webtech
+cd webtech
+./manage.py migrate
+\end{lstlisting}
+
+You might need to create some directories and template files yourself if you do not use the template from GitHub. This is currently not supported and most likely will never be.
+
+To start the server run the following command. You can then access the django application in your browser via \url{http://127.0.0.1:8000/}
+\begin{lstlisting}[style=Bash, caption=Run development server, label=lst:run_server]
+./manage.py runserver
+\end{lstlisting}
