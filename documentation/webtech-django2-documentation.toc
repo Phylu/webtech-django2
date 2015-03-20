@@ -1,4 +1,0 @@
-\select@language {english}
-\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
-\contentsline {subsection}{\numberline {1.1}Requirements}{2}{subsection.1.1}
-\contentsline {subsection}{\numberline {1.2}Setup}{2}{subsection.1.2}
