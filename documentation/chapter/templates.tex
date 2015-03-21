@@ -1,0 +1,85 @@
+\section{Templates}
+
+Now let's beautify our websites a bit. We will take care of the functionality later. In the directory \emph{scorecard/templates/scorecard} there is a default template already. We will fill it up with some content. In \emph{scorecard/static/scorecard} there is a place for static files. I have put a css file and some logos there already.
+
+\subsection{Index template}
+
+In the index template we can refer to template commands such as urls, static files or variables with \lstinline|{% %}|. Command structures such as if statements or loops are set in \lstinline|{{ }}|. Within the index file, we first check, if there is any object\_list given. If not, this means, that there is no course stored in the model and we need to show an error. If there are courses given, we iterate over the courses and show the course name with its votes and links to vote the course up or down. \lstinline|{{ course }}| relates to the course title, because of the \lstinline|__str__| function, we defined earlier. With \lstinline|url| you can build urls based on the names defined in the URL configuration files. \lstinline|scorecard:vote| means, that the url shall be build from the URL with the name vote within the namespace scorecard. Create the file \emph{scorecard/templates/scorecard/index.html} with the content:
+
+\begin{lstlisting}[style=HTML, caption=scorecard/templates/scorecard/index.html, label=lst:index.html]
+<!-- Make the connection to djangos static file system -->
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Scorecard</title>
+    <!-- Load stylesheets as static files -->
+    <link rel="stylesheet" type="text/css" href="{% static 'scorecard/bootstrap/css/bootstrap.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'scorecard/style.css' %}" />
+</head>
+    <div class="page-header"><h1>Scorecard <small>A <a href="https://wwwmatthes.in.tum.de/pages/g78qcvnwz3u3/Web-Technologies-Frameworks-Libraries-and-Plattforms" target="_blank">webtech</a> page by <a href="http://phynformatik.de/" target="_blank">Janosch Maier</a></small> <span id="tumlogo">TUM</span><span id="inlogo">in.tum</span></h1></div>
+    <!-- Check if there are any courses -->
+    {% if object_list %}
+    <ul>
+    <!-- Iterate over the courses -->
+    {% for course in object_list %}
+        <!-- List a course and the voting possibilities -->
+        <li><strong>{{ course }}</strong> has {{ course.votes }} vote{{ course.votes|pluralize }}
+            (<a href="{% url 'scorecard:vote' course.pk 1 %}"><span class="glyphicon glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></a>
+            <a href="{% url 'scorecard:vote' course.pk -1 %}"><span class="glyphicon glyphicon glyphicon-thumbs-down" aria-hidden="true"></span></a>)
+        </li>
+    {% endfor %}
+    </ul>
+    {% else %}
+        <!-- Show an error if no course existing -->
+        <div class="alert alert-info" role="alert">No courses available</div>
+    {% endif %}
+</body>
+</html>
+\end{lstlisting}
+
+\subsection{Updated view}
+
+To make use of the template file, we need to update the view. The generic views classes allow the programmer to use predefined classes for recurring patterns such as lists of elements or detail views. We just give the view class the name of its template file and the model to work with. Additionally we order the list of courses by the number of votes.
+
+\begin{lstlisting}[style=Python, caption=views.py, label=lst:views.py1]
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.views import generic
+
+from scorecard.models import Course
+
+class IndexView(generic.ListView):
+    """
+    The index page is a generic ListView.
+    All Courses are shown in a list
+    """
+    template_name = 'scorecard/index.html'  # Template to use
+    model = Course                          # Model to use
+
+    def get_queryset(self):
+        """
+        Order the Ccurses by their votes begining from the course with most votes.
+        """
+        return Course.objects.get_queryset().order_by('-votes')
+
+def vote(request, pk, vote):
+    return HttpResponse("You are voting on %s with %s." % (pk, vote))
+\end{lstlisting}
+
+\subsection{Updated URLs}
+
+The new view class need to be called, when the index page is requested. Therefore we need to change the \emph{scorecard/urls.py} file.
+
+\begin{lstlisting}[style=Python, caption=scorecard/urls.py, label=lst:scorecard_urls.py1]
+from django.conf.urls import patterns, url
+
+from scorecard import views
+
+urlpatterns = patterns('',
+                       url(r'^$', views.IndexView.as_view(), name='index'),
+                       url(r'^(?P<pk>\d+)/(?P<vote>-?1)/$', views.vote, name='vote'),
+                       )
+\end{lstlisting}
+

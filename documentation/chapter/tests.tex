@@ -1,3 +1,8 @@
+\section{Tests}
+
+Django has a sophisticated testing framework. You can directly test your functions (unit tests) and do also further tests that simulate requests. To create some basic tests for the scorecard application put the following into \emph{scorecard/tests.py}. Test-driven development and continuous integration are posible with django. The create courses function acts directly on the model and creates some courses. Those are only valid within the test case function that calls it. Otherwise a test database is used and all data stored in the developing environment are not touched by those tests. The client get methods simulaties request on the webpage and the reverse function is used to create the correct URL based on the view to be called and the parameters given. Assertion is done like in regular unit tests.
+
+\begin{lstlisting}[style=Python, caption=scorecard/tests.py, label=lst:tests.py]
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
@@ -5,7 +10,7 @@ from scorecard.models import Course
 
 def create_courses():
     """
-    Create some coursese
+    Create some courses
     """
     Course.objects.create(course_title="EADS", votes=0)
     Course.objects.create(course_title="ITSec", votes=0)
@@ -59,3 +64,9 @@ class ScoreboardTest(TestCase):
         response = self.client.get(reverse('scorecard:index'))
         new_votes = response.context['object_list'].get(pk=1).votes
         self.assertEqual(old_votes - 1, new_votes)
+\end{lstlisting}
+
+To run the tests, use the following command:
+\begin{lstlisting}[style=Bash, caption=Run tests, label=lst:run_tests]
+./manage.py tests
+\end{lstlisting}

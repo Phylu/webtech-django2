@@ -1,3 +1,8 @@
+\section{Business Logic}
+
+What is now still missing is the voting function. We already have defined the votes view in the urls files. If such a link is clicked, we will check its input values and update the votes counter. Afterwards the view redirects the user back to the index file.
+
+\begin{lstlisting}[style=Python, caption=scorecard/views.py, label=lst:views.py2]
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.views import generic
@@ -44,3 +49,6 @@ def vote(request, pk, vote):
     else:
         # Vote invalid
         return Http404('Vote must be either 1 or -1')
+\end{lstlisting}
+
+Now the voting system is fully functional.

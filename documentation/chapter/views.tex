@@ -1,0 +1,51 @@
+\section{Views}
+
+If you read further, you might notice that what is called views in django as mostly called controllers. Do not get bothered by that. It is correct. What is usually called view is named templates in django \footnote{\url{https://docs.djangoproject.com/en/1.7/faq/general/\#django-appears-to-be-a-mvc-framework-but-you-call-the-controller-the-view-and-the-view-the-template-how-come-you-don-t-use-the-standard-names}}. This is just a naming convention of django and has no effect on our code.
+
+\subsection{Base views}
+To make django return something when accessed using the browser, we need views. Put the following into \emph{scorecard/views.py}. This creates a view for the index, where a static string is returned. For the votes page the view shows a string that contains some variables it got delivered. These views are only here to show a basic concept of views. We will put there some real content later on. The request variable is given to the views and identifies the request. As a return value you will send a HttpResponse.
+
+\begin{lstlisting}[style=Python, caption=scorecard/views.py, label=lst:views.py]
+from django.shortcuts import render
+from django.http import HttpResponse
+
+
+def index(request):
+    return HttpResponse("This is the index page.")
+
+
+def vote(request, pk, vote):
+    return HttpResponse("You are voting on %s with %s." % (pk, vote))
+\end{lstlisting}
+
+\subsection{URL redirects}
+We now need to make sure, that the corresponding URLs are given to the appropriate views. Django takes the regular expressions defined in the \emph{urls.py} files and gives those to the appropriate views. We create a file \emph{scorecard/urls.py}, register the URLs in there and register this file in the file \emph{webtech/urls.py}. This is because of the application separation that is part of django. Calls that go to \lstinline|/scorecard/| are identified by the main url configuration and given to the one for our application. If there is nothing more in the url (identified by \lstinline|^$|), the index view is called. If there url has an arbitrary number of digits and then a 1 or -1, the call is given to the vote function. The additional URL parts are given to the voting as variables pk and votes. This is identified by the regular expression \lstinline|^(?P<pk>\d+)/(?P<vote>-?1)/$|.
+\begin{lstlisting}[style=Python, caption=scorecard/urls.py, label=lst:scorecard_urls.py]
+from django.conf.urls import patterns, url
+
+from scorecard import views
+
+urlpatterns = patterns('',
+                       url(r'^$', views.index, name='index'),
+                       url(r'^(?P<pk>\d+)/(?P<vote>-?1)/$', views.vote, name='vote'),
+                       )
+\end{lstlisting}
+
+\begin{lstlisting}[style=Python, caption=webtech/urls.py, label=lst:webtech_urls.py]
+from django.conf.urls import patterns, include, url
+from django.contrib import admin
+
+urlpatterns = patterns('',
+                       url(r'^admin/', include(admin.site.urls)),
+                       url(r'^scorecard/', include('scorecard.urls', namespace="scorecard")),
+)
+\end{lstlisting}
+
+You can now access pages of the following format:
+\begin{itemize}
+ \item \url{http://127.0.0.1:8000/scorecard/}
+ \item \url{http://127.0.0.1:8000/scorecard/1/1}
+ \item \url{http://127.0.0.1:8000/scorecard/1/-1}
+\end{itemize}
+
+You will see, that these views are neither connected to your models nor look nicely. The next step is to create some templates to polish up the view and implement the business logic within the views.
