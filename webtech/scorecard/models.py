@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Course(models.Model):
     """
     This class stores the information about one course

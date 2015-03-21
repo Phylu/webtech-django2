@@ -1,0 +1,15 @@
+#tumlogo {
+    display: inline-block;
+    background: url("images/tum.png") no-repeat;
+    background-size: contain;
+    width: 60px;
+    text-indent: 9999px;
+}
+
+#inlogo {
+    display: inline-block;
+    background: url("images/in_tum.png") no-repeat ;
+    background-size: contain;
+    width: 60px;
+    text-indent: 9999px;
+}
