@@ -4,9 +4,9 @@ This repository contains a tutorial for a django application for the TUM seminar
 
 https://wwwmatthes.in.tum.de/pages/g78qcvnwz3u3/Web-Technologies-Frameworks-Libraries-and-Plattforms
 
-## This app
+## Scoreboard
 
-This example app will probably do something semi-useful. We will see this later.
+This application lets you add courses via the django admin interface and then vote them up and down. The courses are shown in the order of the votes they got.
 
 ## Further information
 
