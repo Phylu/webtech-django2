@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.views import generic
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 
 from scorecard.models import Course
 
@@ -15,9 +16,19 @@ class IndexView(generic.ListView):
 
     def get_queryset(self):
         """
-        Order the Ccurses by their votes begining from the course with most votes.
+        Order the Courses by their votes begining from the course with most votes.
         """
         return Course.objects.get_queryset().order_by('-votes')
+
+
+def updateVote(course, vote):
+    vote = int(vote)
+    if abs(vote) == 1:
+        course.votes += vote
+        course.save()
+        return True
+    return False
+
 
 def vote(request, pk, vote):
     """
@@ -31,16 +42,10 @@ def vote(request, pk, vote):
     """
     # If there is no course with the corresponding pk return an error
     course = get_object_or_404(Course, pk=pk)
-    if(vote == '1'):
-        # Increase Vote
-        course.votes += 1
-        course.save()
-        return HttpResponseRedirect(reverse('scorecard:index'))
-    elif(vote == '-1'):
-        # Decrease Vote
-        course.votes -= 1
-        course.save()
+    if updateVote(course, vote):
+        messages.add_message(request, messages.SUCCESS, "Vote Successful!")
         return HttpResponseRedirect(reverse('scorecard:index'))
     else:
         # Vote invalid
-        return Http404('Vote must be either 1 or -1')
+        messages.add_message(request, messages.ERROR, "Vote Not Successful!")
+        return HttpResponseRedirect(reverse('scorecard:index'))
