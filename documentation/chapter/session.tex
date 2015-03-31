@@ -1,0 +1,59 @@
+\section{Session}
+
+You need to add the request context\_processor, so you can access the request.session variable in the view/template
+\begin{lstlisting}[style=Python, caption=webtech/config.py, label=lst:config.py1]
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.messages.context_processors.messages',
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.request'
+)
+\end{lstlisting}
+
+Update your \emph{views.py} in the following way to add the session storage handling.
+\begin{lstlisting}[style=Python, caption=Add messages to views, label=lst:views_msg]def vote(request, pk, vote):
+    """
+    You can either up- or down-vote a course
+    The vote is saved in the model
+    Then the user is redirected to the index page
+    :param request: Request to work on
+    :param pk:      Primary key of the Course
+    :param vote:    1 or -1 depending on up/down-vote
+    :return:        Redirect to Index view or 404 error
+    """
+    # If there is no course with the corresponding pk return an error
+    course = get_object_or_404(Course, pk=pk)
+    if request.session.get('has_voted', False):
+        messages.add_message(request, messages.ERROR, "You have already voted!")
+        return index()
+    if updateVote(course, vote):
+        request.session['has_voted'] = True
+        messages.add_message(request, messages.SUCCESS, "Vote Successful!")
+        return index()
+    else:
+        # Vote invalid
+        messages.add_message(request, messages.ERROR, "Vote Not Successful!")
+        return index()
+
+def vote_again(request):
+    request.session['has_voted'] = False
+    return index()
+\end{lstlisting}
+
+To show the messages on your views page, use the following code. This uses djangos message.tags attribute to get the alert class for bootstrap.
+\begin{lstlisting}[style=HTML, caption=index.html, label=lst:index.html1]
+    {% if request.session.has_voted %}
+        <div class="alert alert-info">
+        You usually can only vote once. If you want to vote again, I can make an exception for you. <a href="{% url 'scorecard:vote_again' %}">Vote Again?</a>
+        </div>
+    {% endif %}
+\end{lstlisting}
+
+Add a new URL redirect so to make everything work.
+To show the messages on your views page, use the following code. This uses djangos message.tags attribute to get the alert class for bootstrap.
+\begin{lstlisting}[style=Python, caption=urls.py, label=lst:urls.py1]
+urlpatterns = patterns('',
+                       url(r'^$', views.IndexView.as_view(), name='index'),
+                       url(r'^(?P<pk>\d+)/(?P<vote>-?\d)/$', views.vote, name='vote'),
+                       url(r'^vote_again$', views.vote_again, name='vote_again')
+                       )
+\end{lstlisting}

@@ -1,0 +1,26 @@
+{% extends 'scorecard/base.html' %}
+
+{% block content %}
+    {% if course %}
+        <h2>Course Overview</h2>
+        <table class="table">
+            <tr>
+                <td>Title</td>
+                <td>{{ course }}</td>
+            </tr>
+            <tr>
+                <td>Lecturer</td>
+                <td>{{ course.lecturer }}</td>
+            </tr>
+            <tr>
+                <td>Votes</td>
+                <td>{{ course.votes }}</td>
+            </tr>
+        </table>
+    {% else %}
+        <!-- Show an error if no course existing -->
+        <div class="alert alert-info" role="alert">Course not available.</div>
+    {% endif %}
+    <a href="{% url 'scorecard:index' %}" class="btn btn-default" role="button">Back</a>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'scorecard/base.html' %}
+
+{% block content %}
+        <h2>Statistics</h2>
+        <table class="table">
+            <tr>
+                <td>Number of Lecturers</td>
+                <td>{{ lecturer_count }}</td>
+            </tr>
+            <tr>
+                <td>Number of Courses</td>
+                <td>{{ courses_count }}</td>
+            </tr>
+            <tr>
+                <td>Votes Mean</td>
+                <td>{{ courses_votes_mean }}</td>
+            </tr>
+            <tr>
+                <td>Lecturer with Highest Votes</td>
+                <td>{{ lecturer_best }}</td>
+            </tr>
+            <tr>
+                <td>Votes Mean for {{ lecturer_best }}</td>
+                <td>{{ lecturer_best_votes_mean }}</td>
+            </tr>
+        </table>
+    <a href="{% url 'scorecard:index' %}" class="btn btn-default" role="button">Back</a>
+
+{% endblock %}

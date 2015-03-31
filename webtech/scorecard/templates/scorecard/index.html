@@ -1,37 +1,24 @@
-<!-- Make the connection to djangos static file system -->
-{% load staticfiles %}
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>Scorecard</title>
-    <!-- Load stylesheets as static files -->
-    <link rel="stylesheet" type="text/css" href="{% static 'scorecard/bootstrap/css/bootstrap.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'scorecard/style.css' %}" />
-</head>
-<body>
-    <div class="page-header"><h1>Scorecard <small>A <a href="https://wwwmatthes.in.tum.de/pages/g78qcvnwz3u3/Web-Technologies-Frameworks-Libraries-and-Plattforms" target="_blank">webtech</a> page by <a href="http://phynformatik.de/" target="_blank">Janosch Maier</a></small> <span id="tumlogo">TUM</span><span id="inlogo">in.tum</span></h1></div>
-    <!-- Show message if stored -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-    <!-- Check if there are any courses -->
+{% extends 'scorecard/base.html' %}
+
+{% block content %}
     {% if object_list %}
-    <ul>
-    <!-- Iterate over the courses -->
-    {% for course in object_list %}
-        <!-- List a course and the voting possibilities -->
-        <li><strong>{{ course }}</strong> has {{ course.votes }} vote{{ course.votes|pluralize }}
-            (<a href="{% url 'scorecard:vote' course.pk 1 %}"><span class="glyphicon glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></a>
+        <ul>
+        <!-- Iterate over the courses -->
+            {% for course in object_list %}
+                <!-- List a course and the voting possibilities -->
+                <li><strong><a href="{% url 'scorecard:details' course.pk %}">{{ course }}</a></strong> has {{ course.votes }} vote{{ course.votes|pluralize }}
+                    (<a href="{% url 'scorecard:vote' course.pk 1 %}"><span class="glyphicon glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></a>
             <a href="{% url 'scorecard:vote' course.pk -1 %}"><span class="glyphicon glyphicon glyphicon-thumbs-down" aria-hidden="true"></span></a>)
         </li>
     {% endfor %}
     </ul>
+    {% if request.session.has_voted %}
+        <div class="alert alert-info">
+        You usually can only vote once. If you want to vote again, I can make an exception for you. <a href="{% url 'scorecard:vote_again' %}">Vote Again?</a>
+        </div>
+    {% endif %}
     {% else %}
         <!-- Show an error if no course existing -->
         <div class="alert alert-info" role="alert">No courses available</div>
     {% endif %}
-</body>
-</html>
+{% endblock %}

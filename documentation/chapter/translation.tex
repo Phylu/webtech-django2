@@ -1,0 +1,20 @@
+\section{Translatuon}
+
+Create \emph{scorecard/locale}.
+
+Run from within \emph{scorecard}:
+
+\begin{lstlisting}[style=Bash, caption=webtech/config.py, label=lst:config.py1]
+django-admin.py makemessages -l de
+\end{lstlisting}
+
+Then Edit the .po file
+
+%TODO
+
+and run:
+\begin{lstlisting}[style=Bash, caption=Add messages to views, label=lst:views_msg]def vote(request, pk, vote):
+django-admin.py compilemessages
+\end{lstlisting}
+
+Now create your language strings

@@ -1,4 +1,8 @@
 from django.contrib import admin
-from scorecard.models import Course
+from scorecard.models import Course, Lecturer
 
-admin.site.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ('course_title', 'lecturer')
+
+admin.site.register(Course, CourseAdmin)
+admin.site.register(Lecturer)

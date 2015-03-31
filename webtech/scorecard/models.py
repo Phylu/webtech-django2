@@ -1,6 +1,18 @@
 from django.db import models
 
 
+class Lecturer(models.Model):
+    first_name = models.CharField(max_length=200)
+    last_name = models.CharField(max_length=200)
+
+    def __str__(self):
+        """
+        Convert the Lecturer Name to a human readable string
+        :return: Returns the full name of the lecturer
+        """
+        return "%s %s" % (self.first_name, self.last_name)
+
+
 class Course(models.Model):
     """
     This class stores the information about one course
@@ -10,6 +22,7 @@ class Course(models.Model):
     """
     course_title = models.CharField(max_length=200)
     votes = models.IntegerField(default=0)
+    lecturer = models.ForeignKey(Lecturer)
 
     def __str__(self):
         """
@@ -17,3 +30,6 @@ class Course(models.Model):
         :return: Returns the title of the course
         """
         return self.course_title
+
+    def is_great_course(self):
+        return self.votes > 100;
