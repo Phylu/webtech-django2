@@ -1,0 +1,21 @@
+\section{Introduction}
+
+This tutorial introduced advanced django features within scorecard application. Seminars and lectures can be added and then voted up or down. An overview page shows the courses ranked by the votes. Each course belongs to a certain lecturer. A statistics page shows which lecturer performs best by the votes mean of his courses. This tutorial was build for the TUM seminar Webtech within the summer term 2015 \footnote{\url{https://wwwmatthes.in.tum.de/pages/g78qcvnwz3u3/Web-Technologies-Frameworks-Libraries-and-Plattforms}}. The scorecard is put in a seperate directory as its own django application. This is useful if you want to have a broad range of functionality on your webpage and seperate their source code propperly. The final application is shown in figure \ref{fig:scorecard}.
+
+\myfigure{images/scorecard.png}{The scorecard Application}{fig:scorecard}
+
+\subsection{Requirements}
+
+To go through this tutorial you will need an installation of Python 3 with Django 1.7. You will probably get Python by your package manager. For help installing Django you should check out its documentation \footnote{\url{https://docs.djangoproject.com/en/1.7/intro/install/}}. If you encounter any problems during this tutorial, refer back to that page. There is a lot of further information there. The tutorial should work on a Linux system without modification. On Windows you will probably have slightly different commands to run the \lstinline|manage.py| script.
+
+\subsection{Setup}
+
+To get the application from the GitHub use:
+\begin{lstlisting}[style=Bash, caption=Clone application, label=lst:clone_app]
+git clone https://github.com/Phylu/webtech-django2.git
+\end{lstlisting}
+
+To start the server run the following command. You can then access the django application in your browser via \url{http://127.0.0.1:8000/scorecard}
+\begin{lstlisting}[style=Bash, caption=Run development server, label=lst:run_server]
+./manage.py runserver
+\end{lstlisting}

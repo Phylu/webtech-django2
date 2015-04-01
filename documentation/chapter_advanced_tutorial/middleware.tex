@@ -1,0 +1,118 @@
+\section{Middleware}
+\label{sec:middleware}
+
+Middlewares hook in between the request and the view. This means you can set additional information in the view easily or retrieve information that was not explicitly provided by the user with the request. Two prominent examples of this are the sessions and the messages module of django.
+
+\section{Messages}
+
+With django you can easily create messages and propagate them in between your pages. The messages application is already installed, if you create a new project. You just need to put some few statements into your \emph{webtech/config.py} to make it work. The context processor messages (line 2) makes your messages available for the templates. The second statement (line 6--9) is used to make error messages work propperly with bootstrap. The css class therefore has to be set to danger, not error.
+\begin{lstlisting}[style=Python, caption=webtech/config.py, label=lst:config.py1]
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.messages.context_processors.messages',
+    'django.contrib.auth.context_processors.auth'
+)
+
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}
+\end{lstlisting}
+
+The \lstinline|message.add_message()| method in the \emph{views.py} file adds some messages that are dilivered to the templates.
+\begin{lstlisting}[style=Python, caption=Add messages to views, label=lst:views_msg]
+from django.contrib import messages
+
+def vote(request, pk, vote):
+    """
+    You can either up- or down-vote a course
+    The vote is saved in the model
+    Then the user is redirected to the index page
+    :param request: Request to work on
+    :param pk:      Primary key of the Course
+    :param vote:    1 or -1 depending on up/down-vote
+    :return:        Redirect to Index view or 404 error
+    """
+    # If there is no course with the corresponding pk return an error
+    course = get_object_or_404(Course, pk=pk)
+    if updateVote(course):
+        messages.add_message(request, messages.SUCCESS, "Vote Successful")
+        return HttpResponseRedirect(reverse('scorecard:index'))
+    else:
+        # Vote invalid
+        messages.add_message(request, messages.WARNING, "Vote Not Successful")
+        return HttpResponseRedirect(reverse('scorecard:index'))
+\end{lstlisting}
+
+To show the messages on your views page, use the following code. This uses djangos message.tags attribute to get the alert class for bootstrap.
+\begin{lstlisting}[style=HTML, caption=index.html, label=lst:index.html1]
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+\end{lstlisting}
+
+In general, one could also create a message variable in the view context himself. But the messaging framework simplifies this task and provides easy functions for this purpose.
+
+\subsection{Session}
+\label{ssec:session}
+
+With the session middleware, one can store additional information for the requests that are connected with a session. In this scoreboard each user (identified by its session) shall only vote once. Therefore we store a hook in the session, if the user has already voted. For testing purposes, we allow the user to reset the hook by calling a special page.
+
+You need to add the request context\_processor in \emph{scoreboard/config.py}, so you can access the request.session variable in the view/template.
+\begin{lstlisting}[style=Python, caption=webtech/config.py, label=lst:config.py1]
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.messages.context_processors.messages',
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.request'
+)
+\end{lstlisting}
+
+Update your \emph{views.py} in the following way to add the session storage handling. With \lstinline|request.session.get('has_voted', False)| (line 12) we try to retrieve the value of the has\_voted session variable. If there is nothing stored, the function returns \lstinline|False|. To store True in the variable you can simply use \lstinline|request.session['has_voted'] = True| (line 16).
+\begin{lstlisting}[style=Python, caption=Session handling in vote view, label=lst:views_session]
+def vote(request, pk, vote)
+    """
+    You can either up- or down-vote a course
+    The vote is saved in the model
+    Then the user is redirected to the index page
+    :param request: Request to work on
+    :param pk:      Primary key of the Course
+    :param vote:    1 or -1 depending on up/down-vote
+    :return:        Redirect to Index view or 404 error
+    """
+    # If there is no course with the corresponding pk return an error
+    course = get_object_or_404(Course, pk=pk)
+    if request.session.get('has_voted', False):
+        messages.add_message(request, messages.ERROR, "You have already voted!")
+        return index()
+    if updateVote(course, vote):
+        request.session['has_voted'] = True
+        messages.add_message(request, messages.SUCCESS, "Vote Successful!")
+        return index()
+    else:
+        # Vote invalid
+        messages.add_message(request, messages.ERROR, "Vote Not Successful!")
+        return index()
+
+def vote_again(request):
+    request.session['has_voted'] = False
+    return index()
+\end{lstlisting}
+
+As we want the user to reset its session, so he can vote again, we show in information message if the has\_voted variable is set. The link should bring the user to the vote\_again page that resets the session hook (line 25 in listing \ref{lst:views_session})
+\begin{lstlisting}[style=HTML, caption=index.html, label=lst:index.html1]
+    {% if request.session.has_voted %}
+        <div class="alert alert-info">
+        You usually can only vote once. If you want to vote again, I can make an exception for you. <a href="{% url 'scorecard:vote_again' %}">Vote Again?</a>
+        </div>
+    {% endif %}
+\end{lstlisting}
+
+To access make the vote\_again page work, add a new URL redirect (line 4).
+\begin{lstlisting}[style=Python, caption=urls.py, label=lst:urls.py1]
+urlpatterns = patterns('',
+                       url(r'^$', views.IndexView.as_view(), name='index'),
+                       url(r'^(?P<pk>\d+)/(?P<vote>-?\d)/$', views.vote, name='vote'),
+                       url(r'^vote_again$', views.vote_again, name='vote_again')
+                       )
+\end{lstlisting}

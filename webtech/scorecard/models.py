@@ -2,6 +2,12 @@ from django.db import models
 
 
 class Lecturer(models.Model):
+    """
+    This class stores the information about one lecturer
+    first_name  is the field which stores the first name
+    last_name   is the field which stores the last name
+    pk          is created automatically as the primary key
+    """
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
 
@@ -10,7 +16,7 @@ class Lecturer(models.Model):
         Convert the Lecturer Name to a human readable string
         :return: Returns the full name of the lecturer
         """
-        return "%s %s" % (self.first_name, self.last_name)
+        return "{0} {1}".format(self.first_name, self.last_name)
 
 
 class Course(models.Model):
@@ -18,6 +24,7 @@ class Course(models.Model):
     This class stores the information about one course
     course_title    is the field which stores the title of a course
     vote            is the number of votes a course got
+    lecturer        refers to the Lecturer model and identifies the lecturer responsible for the course
     pk              is created automatically as the primary key
     """
     course_title = models.CharField(max_length=200)
@@ -32,4 +39,9 @@ class Course(models.Model):
         return self.course_title
 
     def is_great_course(self):
-        return self.votes > 100;
+        """
+        Figures out if a course is great or not.
+        Great courses have more than 100 positive votes
+        :return: True if votes > 100, Fales otherwise
+        """
+        return self.votes > 100

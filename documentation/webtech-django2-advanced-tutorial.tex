@@ -59,7 +59,7 @@
 \lstset{ %
 %language=Bash,                % the language of the code
 basicstyle=\ttfamily\color{black},       % the size of the fonts that are used for the code
-%numbers=left,                   % where to put the line-numbers
+numbers=right,                   % where to put the line-numbers
 %numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
 %stepnumber=2,                   % the step between two line-numbers. If it's 1, each line 
                                 % will be numbered
@@ -152,13 +152,9 @@ breakatwhitespace=false,        % sets if automatic breaks should only happen at
 \begin{document}
 \maketitle
 \tableofcontents
-\include{chapter/introduction}
-\include{chapter/models}
-\include{chapter/views}
-\include{chapter/templates}
-\include{chapter/business_logic}
-\include{chapter/tests}
-\include{chapter/messages}
-\include{chapter/session}
-\include{chapter/translation}
+\include{chapter_advanced_tutorial/introduction}
+\include{chapter_advanced_tutorial/orm}
+\include{chapter_advanced_tutorial/tests}
+\include{chapter_advanced_tutorial/middleware}
+\include{chapter_advanced_tutorial/translation}
 \end{document}

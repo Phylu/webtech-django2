@@ -1,0 +1,159 @@
+\section{Object-Relational Mapping}
+
+Django stores the objects of its models in a relational database. To access these from within the programming environment Object-Relational Mapping (ORM) is used. Each model is represented by a table with the model's attributes as its columns. ORM allows the programmer to access the stored models in an easy way.
+
+\subsection{Lecturer and Course Model}
+The following models are used for the scoreboard application:
+
+\begin{lstlisting}[style=Python, caption=scorecard/models.py, label=lst:models.py]
+from django.db import models
+
+
+class Lecturer(models.Model):
+    """
+    This class stores the information about one lecturer
+    first_name  is the field which stores the first name
+    last_name   is the field which stores the last name
+    pk          is created automatically as the primary key
+    """
+    first_name = models.CharField(max_length=200)
+    last_name = models.CharField(max_length=200)
+
+    def __str__(self):
+        """
+        Convert the Lecturer Name to a human readable string
+        :return: Returns the full name of the lecturer
+        """
+        return "{0} {1}".format(self.first_name, self.last_name)
+
+
+class Course(models.Model):
+    """
+    This class stores the information about one course
+    course_title    is the field which stores the title of a course
+    vote            is the number of votes a course got
+    lecturer        refers to the Lecturer model and identifies the lecturer responsible for the course
+    pk              is created automatically as the primary key
+    """
+    course_title = models.CharField(max_length=200)
+    votes = models.IntegerField(default=0)
+    lecturer = models.ForeignKey(Lecturer)
+
+    def __str__(self):
+        """
+        Convert a Course Model to a human readable string
+        :return: Returns the title of the course
+        """
+        return self.course_title
+
+    def is_great_course(self):
+        """
+        Figures out if a course is great or not.
+        Great courses have more than 100 positive votes
+        :return: True if votes > 100, Fales otherwise
+        """
+        return self.votes > 100
+\end{lstlisting}
+
+\subsection{Adding Objects}
+
+To work with the models, objects need to be created. The command \lstinline|Lecturer()| respectively \lstinline|Course()| create a new object of the corresponding class. The \lstinline|save()| method stores the object permanently in the database.
+\begin{lstlisting}[style=Python, caption=Adding Objects, label=lst:adding_objects]
+from scorecard.models import Course, Lecturer
+
+l = Lecturer(first_name="Alexander", last_name="Waldmann")
+l.save()
+c = Course(course_title="Webtech", votes=0, lecturer=l)
+c.save()
+\end{lstlisting}
+
+Those (and the following) commands can be either run within your django project classes (perhaps the views or a test class as described in the next chapter) or from the interactive shell. To enter the shell run from the terminal:
+\begin{lstlisting}[style=Bash, caption=Open django shell, label=lst:django_shell]
+./manage.py shell
+\end{lstlisting}
+
+\subsection{Retrieving Objects}
+The attribute \lstinline|pk| is the primary key of an object. If not specified otherwise, it is an integer, that is automatically incremented. To get the objects we just created, you can call:
+\begin{lstlisting}[style=Python, caption=Retrieving objects by Primary Key, label=lst:retrieving_objects_pk]
+l = Lecturer.objects.get(pk=1)
+c = Course.objects.get(pk=1)
+\end{lstlisting}
+
+To get all objects of one model, you can use the \lstinline|all()| method. This may be used for iterating or showing a set of objects in a template. You should probably add some more objects in order to get meaningfull results.
+\begin{lstlisting}[style=Python, caption=Retrieving all objects of a model, label=lst:retrieving_objects_all]
+for course in Course.objects.all():
+  print(course)
+\end{lstlisting}
+
+To order the objects shown, there is the \lstinline|order_by()| method available. Order by can take several attributes for ordering. By default the order is ascending. A negative sign in front of the attribute name means descending ordering. The following statements gets all Lecturers ordered first by their first name, then by their last name in descending ordering. The following commands are similar:
+\begin{lstlisting}[style=Python, caption=Retrieving objects in order, label=lst:retrieving_objects_ordered]
+Lecturer.objects.all().order_by('-first_name', '-last_name')
+Lecturer.objects.order_by('-first_name', '-last_name')
+\end{lstlisting}
+
+To restrict the output of objects to a certain amount or range, one can access the output of an objects method like an array. To get the three courses with the most votes, run:
+\begin{lstlisting}[style=Python, caption=Retrieving ranges of objects, label=lst:retrieving_objects_range]
+Course.objects.order_by('-votes')[0:3]
+\end{lstlisting}
+
+
+\subsection{Filtering}
+
+Most likely, you will not want to get all objects, that are stored but filter your objects by certain criteria. For filtering one can use the \lstinline|filter()| method. To filter an object by its attributes, suffixes like \lstinline|__contains|, \lstinline|__startswith|, \lstinline|__exact|, \lstinline|__gte| are used. The filter in line 1 will match the Webtech course, that was created at the beginning of this chapter. The filter in line 2 will not match the course (at least if you use a database that has case-sensitive comparisons; So when using sqlite as database backend it will match the course as well). The filter in line 3 will match again, as the letter \lstinline|i| means, that the comparison is case-insensitive. The filter in line 4 matches all courses whose vote counter is greater than 3. The method \lstinline|exclude()| works the same way as \lstinline|filter()|, with all but the matched objects returned.
+\begin{lstlisting}[style=Python, caption=Filtering objects, label=lst:filtering_objects]
+Course.objects.filter(course_title__exact='Webtech')
+Course.objects.filter(course_title__contains='web')
+Course.objects.filter(course_title__icontains='web')
+Course.objects.filter(votes__gte=3)
+\end{lstlisting}
+
+Filter who take another attribute of the same object into account use the \lstinline|F()| method. To find all lecturers whose first name is the same as their last name, use:
+\begin{lstlisting}[style=Python, caption=Filtering objects with attribute comparisons, label=lst:filtering_objects_attributes]
+from django.db.models import F
+Lecturer.objects.filter(first_name__exact=F('last_name'))
+\end{lstlisting}
+
+Several filter statements are connected with a logical and. To create more sophisticated queries for example with or statements or negations, one can use the \lstinline|Q()| method.
+
+The filter statements in the 2nd and 3rd line yield the same results. They return all lecturers whose first name contains the string Alex \emph{and} the last name does not contain the string Matthes.
+
+The statement in the 4th line however returns all lecturers whose first name contains Alex \emph{or} the last name contains Matthes.
+
+The last statement filters all lecturers whose first name contains Alex \emph{or} the last name contains \emph{not} Matthes.
+
+\begin{lstlisting}[style=Python, caption=Filtering objects with or statements and negations, label=lst:filtering_objects_or]
+from django.db.models import Q
+Lecturer.objects.filter(first_name__contains='Alex', last_name__contains='Matthes')
+Lecturer.objects.filter(Q(first_name__contains='Alex'), Q(last_name__contains='Matthes'))
+Lecturer.objects.filter(Q(first_name__contains='Alex') | Q(last_name__contains='Matthes'))
+Lecturer.objects.filter(Q(first_name__contains='Alex') | ~Q(last_name__contains='Matthes'))
+\end{lstlisting}
+
+\subsection{Aggregation}
+
+With a relational database backend it is not only possible to filter out elements but do calculations already in the database. The following command counts the number of courses that are stored:
+\begin{lstlisting}[style=Python, caption=Counting objects, label=lst:counting_objects]
+Course.objects.count()
+\end{lstlisting}
+
+Further aggregation needs the corresponding imports from the django model class.
+
+The command in line 1 and 2 get the average, respectively maximum votes of the stored courses.
+
+The filter in line 4 gives all courses, who are voted highest of all courses.
+\begin{lstlisting}[style=Python, caption=Average and Maximum values of objects, label=lst:objects_aggregations]
+from django.db.models import Avg, Max
+Course.objects.aggregate(Avg('votes'))['votes__avg']
+Course.objects.aggregate(Max('votes'))['votes__max']
+Course.objects.filter(Q(votes__exact=Course.objects.aggregate(Max('votes'))['votes__max']))
+\end{lstlisting}
+
+\subsection{Annotation}
+
+Temporary attributes that depend other objects are helpful in some cases. To find out which lecturer performs best, one can group the courses by lecturers and add the average votes of all his courses.
+\begin{lstlisting}[style=Python, caption=Annotating objects, label=lst:objects_annotations]
+Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
+\end{lstlisting}
+
+\subsection{Raw SQL Queries}
+Using the \lstinline|raw()| method it is also possible to write raw SQL statements. This gives the programmer much freedom, however unescaped SQL statements may open the application for SQL injection attacks. So use this feature wisely. I will only refer to the django manual at this point\footnote{\url{https://docs.djangoproject.com/en/1.7/topics/db/sql/}}.

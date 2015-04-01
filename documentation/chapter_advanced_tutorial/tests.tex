@@ -1,0 +1,177 @@
+\section{Tests}
+
+Django has a sophisticated testing framework. You can directly test your functions with unit tests and do also further tests that simulate requests. The file \emph{scorecard/tests.py} contains the tests for the scorecard application. Test-driven development and continuous integration are posible with django.
+
+The class ScoreboardTest contains the tests for the scoreboard application. When tests are run, the application creates an extra database for the tests. all data in your productive environment is not touched.
+
+The \lstinline|setUp()| method (line 14) creates objects for the test cases. It is run automatically by the testing environment before each test. The test methods will use the defined lecturers and courses to run their tests.
+
+The test functions use several othe methods for convenience. Important is \lstinline|vote()| (line 33), which takes a course and either 1 or -1 and votes the course up and down. The function returns the votes before and after the vote. This is not done directly within the model but using the views. \lstinline|self.client.get()| runs a get request on a page of the project. \lstinline|reverse| does a lookup in the \emph{urls.py} file to get the correct URL. \lstinline|vote_again()| (line 47) calls the vote\_again page to reenable the voting if a user in this session has already voted. This functionality is covered in section \ref{ssec:session} of this tutorial.
+
+\begin{itemize}
+ \item \lstinline|test_lecturer_str()| (line 54) works directly on the model and checks if the \lstinline|__str__()| method of the lecturer model works correctly
+ \item \lstinline|test_great_course_for_bad_course()| (line 62) and \lstinline|test_great_course_for_great_course()| (line 70) also work on the model directly. They use the function \lstinline|is_great_course()|, which is defined in the course model. Those are regular unit tests.
+ \item \lstinline|test_error_msg_if_no_course()| (line 79) first deletes all courses and then checks if the response for a get request on the index page contains the error message, that there are no courses available. This check is done using the \lstinline|assertContains()| method.
+ \item \lstinline|test_if_courses_are_shown_without_voting()| (line 87) checks if all courses created in the \lstinline|setUp()| method are given to the index template correctly. \lstinline|assertQuerysetEqual()| checks if the objext\_list in the context equals the one that contains all the defined courses for the test case.
+ \item \lstinline|test_if_voting_redirect_is_correct()| (line 94) looks if the status code of the response when the voting page is called is a correct redirect.
+ \item The following 4 test methods (line 101, 109, 117, 127) test the voting functionality. A vote shall only be counted when the user in the session has not yet voted (again, see section \ref{ssec:session} for more details). They use the \lstinline|vote()| method to call the voting page and compare the votes before and afterwards.
+ \item \lstinline|test_statistic()| (line 138) checks if the statistic pages contains the correct values that should be calculated with the lecturer and course objects as created using \lstinline|setUp()|. lecturer\_1 has only one course that is voted with two positive votes. The other lecture has an average of zero votes. Therefore lecturer\_1 is the best lecturer with a votes mean of two.
+\end{itemize}
+
+
+\begin{lstlisting}[style=Python, caption=scorecard/tests.py, label=lst:tests.py]
+from django.test import TestCase
+from django.core.urlresolvers import reverse
+
+from scorecard.models import Course, Lecturer
+
+
+class ScoreboardTest(TestCase):
+    lecturer_1 = Lecturer()
+    lecturer_2 = Lecturer()
+    course_1 = Course()
+    course_2 = Course()
+    course_3 = Course()
+
+    def setUp(self):
+        """
+        Create some courses & lecturers
+        """
+        self.lecturer_1 = Lecturer.objects.create(first_name="Janosch", last_name="Maier")
+        self.lecturer_2 = Lecturer.objects.create(first_name="A", last_name="B")
+        self.course_1 = Course.objects.create(course_title="EADS", votes=0, lecturer=self.lecturer_1)
+        self.course_2 = Course.objects.create(course_title="ITSec", votes=0, lecturer=self.lecturer_2)
+        self.course_3 = Course.objects.create(course_title="Webtech", votes=0, lecturer=self.lecturer_2)
+
+    def delete_courses(self):
+        """
+        Delete all courses for test
+        :return:
+        """
+        self.course_1.delete()
+        self.course_2.delete()
+        self.course_3.delete()
+
+    def vote(self, course, up_down):
+        """
+        Vote for course with vote up_down
+        :param course: Course object
+        :param up_down: 1 or -1
+        :return: old_votes, new_votes
+        """
+        response = self.client.get(reverse('scorecard:index'))
+        old_votes = response.context['object_list'].get(pk=course.pk).votes
+        self.client.get(reverse('scorecard:vote', kwargs={'pk': course.pk, 'vote': up_down}))
+        response = self.client.get(reverse('scorecard:index'))
+        new_votes = response.context['object_list'].get(pk=course.pk).votes
+        return old_votes, new_votes
+
+    def vote_again(self):
+        """
+        Reset has_already_voted hook
+        :return:
+        """
+        self.client.get(reverse('scorecard:vote_again'))
+
+    def test_lecturer_str(self):
+        """
+        Test if the __str__ method of lecturer works properly
+        :return:
+        """
+        lecturer = Lecturer.objects.create(first_name='Janosch', last_name='Maier')
+        self.assertEqual(lecturer.__str__(), 'Janosch Maier')
+
+    def test_great_course_for_bad_course(self):
+        """
+        Return false if course has less then 100 votes
+        :return:
+        """
+        course = Course.objects.create(course_title="EADS", votes=100, lecturer=self.lecturer_1)
+        self.assertEqual(course.is_great_course(), False)
+
+    def test_great_course_for_great_course(self):
+        """
+        Return false if course has less then 100 votes
+        :return:
+        """
+        course = Course.objects.create(course_title="EADS", votes=101, lecturer=self.lecturer_1)
+        self.assertEqual(course.is_great_course(), True)
+
+
+    def test_error_msg_if_no_course(self):
+        """
+        If there is no Course existing, the Index should present an error msg
+        """
+        self.delete_courses()
+        response = self.client.get(reverse('scorecard:index'))
+        self.assertContains(response, 'No courses available')
+
+    def test_if_courses_are_shown_without_voting(self):
+        """
+        If courses are created, they should be shown on the index page
+        """
+        response = self.client.get(reverse('scorecard:index'))
+        self.assertQuerysetEqual(response.context['object_list'], ['<Course: EADS>', '<Course: ITSec>', '<Course: Webtech>'])
+
+    def test_if_voting_redirect_is_correct(self):
+        """
+        If a vote is counted, the user is redirected
+        """
+        response = self.client.get(reverse('scorecard:vote', kwargs={'pk':1, 'vote':1}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_if_voting_increased_counter(self):
+        """
+        If a positive vote is counted, the counter should increase
+        """
+        vote = 1
+        old_votes, new_votes = self.vote(self.course_1, vote)
+        self.assertEqual(old_votes + vote, new_votes)
+
+    def test_if_voting_decreased_counter(self):
+        """
+        If a negative vote is counted, the counter should decrease
+        """
+        vote = -1
+        old_votes, new_votes = self.vote(self.course_1, vote)
+        self.assertEqual(old_votes + vote, new_votes)
+
+    def test_if_voting_increased_counter_twice_without_reset(self):
+        """
+        If a positive vote is counted, the counter should increase
+        """
+        vote = 1
+        old_votes, not_used = self.vote(self.course_1, vote)
+        not_used, new_votes = self.vote(self.course_1, vote)
+        self.assertEqual(old_votes + vote, new_votes)
+
+
+    def test_if_voting_increased_counter_twice_with_reset(self):
+        """
+        If a positive vote is counted, the counter should increase
+        """
+        vote = 1
+        old_votes, not_used = self.vote(self.course_1, vote)
+        self.vote_again()
+        not_used, new_votes = self.vote(self.course_1, vote)
+        self.assertEqual(old_votes + (2 * vote), new_votes)
+
+
+    def test_statistic(self):
+        """
+        Statistic should show correct values
+        :return:
+        """
+        vote = 1
+        self.vote(self.course_1, vote)
+        self.vote_again()
+        self.vote(self.course_1, vote)
+        response = self.client.get(reverse('scorecard:statistics'))
+        self.assertEqual(response.context['lecturer_best'], self.lecturer_1)
+        self.assertEqual(response.context['lecturer_best_votes_mean'], 2)
+\end{lstlisting}
+
+To run the tests, use the following command:
+\begin{lstlisting}[style=Bash, caption=Run tests, label=lst:run_tests]
+./manage.py tests
+\end{lstlisting}
