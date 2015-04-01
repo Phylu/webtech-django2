@@ -1,0 +1,25 @@
+{% extends 'scorecard/base.html' %}
+{% load i18n %}
+
+{% block content %}
+    {% if object_list %}
+        <ul>
+        <!-- Iterate over the courses -->
+            {% for course in object_list %}
+                <!-- List a course and the voting possibilities -->
+                <li><strong><a href="{% url 'scorecard:details' course.pk %}">{{ course }}</a></strong> {% trans "has" %} {% blocktrans count counter=course.votes %}{{ counter }} vote.{% plural %}{{ counter }} votes.{% endblocktrans %}
+                    (<a href="{% url 'scorecard:vote' course.pk 1 %}"><span class="glyphicon glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></a>
+            <a href="{% url 'scorecard:vote' course.pk -1 %}"><span class="glyphicon glyphicon glyphicon-thumbs-down" aria-hidden="true"></span></a>)
+        </li>
+    {% endfor %}
+    </ul>
+    {% if request.session.has_voted %}
+        <div class="alert alert-info">
+        {% trans "You usually can only vote once. If you want to vote again, I can make an exception for you." %} <a href="{% url 'scorecard:vote_again' %}">{% trans "Vote again?" %}</a>
+        </div>
+    {% endif %}
+    {% else %}
+        <!-- Show an error if no course existing -->
+        <div class="alert alert-info" role="alert">{% trans "No courses available" %}</div>
+    {% endif %}
+{% endblock %}

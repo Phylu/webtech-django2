@@ -1,20 +1,68 @@
 \section{Translation}
 
-Create \emph{scorecard/locale}.
+To make your django application available for a broad audience, internationalization is needed. With the translation framework of django this is possible.
 
-Run from within \emph{scorecard}:
+\subsection{Translation definitions}
+To create an internationalized version of the scorecard application, all strings need to put into translation functions. Based on these translation strings, the \emph{django-admin.py} file creates a \emph{.po} file, in which the translation takes place. First in your views (or wherever strings are created), import the translation method enclose the strings accordingly. Look at the string in line 6.
 
-\begin{lstlisting}[style=Bash, caption=webtech/config.py, label=lst:config.py1]
+\begin{lstlisting}[style=Python, caption=exceprt of views.py with translation, label=lst:views.py_translation]
+from django.utils.translation import ugettext as _
+
+def vote(request, pk, vote):
+    course = get_object_or_404(Course, pk=pk)
+    if has_already_voted(request):
+        messages.add_message(request, messages.ERROR, _("You have already voted!"))
+\end{lstlisting}
+
+For translating templates, the \lstinline|{% trans "string" %}| tag is available. See how translation for the menu links is initialized in lines 5 and 6 of the following snippet.
+
+\begin{lstlisting}[style=HTML, caption=exceprt of base.html with translation, label=lst:base.html_translation]
+{% load i18n %}
+
+<div class="navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+        <li><a href="{% url 'scorecard:index' %}">{% trans "Home" %}</a></li>
+        <li><a href="{% url 'scorecard:statistics' %}">{% trans "Statistics" %}</a></li>
+    </ul>
+</div><!-- /.navbar-collapse -->
+\end{lstlisting}
+
+\subsection{Pluralization}
+Pluralization is a bit more difficult. If English is set as the first language, the plural ``s'' can be used easily with the \lstinline|pluralize| command. This is not possible for more complicated languages such as German or any than the first language used in the project. To create a pluralized version of a string, you need a counter that defines whether the singular or plural version of the string is used. In the following code, \lstinline|course.votes| is used as counter, to pluralize the votes.
+
+\begin{lstlisting}[style=HTML, caption=exceprt of index.html with translation, label=lst:index.html_translation]
+{% blocktrans count counter=course.votes %}{{ counter }} vote.{% plural %}{{ counter }} votes.{% endblocktrans %}
+\end{lstlisting}
+
+\subsection{Translation Files}
+Now we defined the strings that shall be translated. To do the actual translation, let django create a translation file. Create the folder \emph{scorecard/locale}.
+
+From within the \emph{scorecard} directory run the following command to create a translation file for German:
+
+\begin{lstlisting}[style=Bash, caption=Create a German translation file, label=lst:makemessages]
 django-admin.py makemessages -l de
 \end{lstlisting}
 
-Then Edit the .po file
+Now in the directory \emph{scorecard/locale}, a directory for the German language appears. Deep down in this directory there is a \emph{django.po} file. Create the translation strings within this file. You can see the plural version of the string for the votes counter in the \emph{index.html} file in line 9-14.
 
-%TODO
+\begin{lstlisting}[style=HTML, caption=django.po file for German, label=lst:django.po]
+#: templates/scorecard/base.html:20
+msgid "Home"
+msgstr "Start"
 
-and run:
-\begin{lstlisting}[style=Bash, caption=Add messages to views, label=lst:views_msg]def vote(request, pk, vote):
-django-admin.py compilemessages
+#: templates/scorecard/base.html:21
+msgid "Statistics"
+msgstr "Statistik"
+
+#: templates/scorecard/index.html:10
+#, python-format
+msgid "%(counter)s vote."
+msgid_plural "%(counter)s votes."
+msgstr[0] "%(counter)s Stimme."
+msgstr[1] "%(counter)s Stimmen."
 \end{lstlisting}
 
-Now create your language strings
+To apply the translated messages, run:
+\begin{lstlisting}[style=Bash, caption=Compile messages, label=lst:compilemessages]
+django-admin.py compilemessages
+\end{lstlisting}

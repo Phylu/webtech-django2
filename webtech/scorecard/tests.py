@@ -56,8 +56,8 @@ class ScoreboardTest(TestCase):
         Test if the __str__ method of lecturer works properly
         :return:
         """
-        lecturer = Lecturer.objects.create(first_name='Janosch', last_name='Maier')
-        self.assertEqual(lecturer.__str__(), 'Janosch Maier')
+        lecturer = Lecturer.objects.create(first_name="Janosch", last_name="Maier")
+        self.assertEqual(lecturer.__str__(), "Janosch Maier")
 
     def test_great_course_for_bad_course(self):
         """
@@ -82,7 +82,7 @@ class ScoreboardTest(TestCase):
         """
         self.delete_courses()
         response = self.client.get(reverse('scorecard:index'))
-        self.assertContains(response, 'No courses available')
+        self.assertContains(response, "No courses available")
 
     def test_if_courses_are_shown_without_voting(self):
         """

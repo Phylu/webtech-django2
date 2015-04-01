@@ -1,0 +1,28 @@
+{% extends 'scorecard/base.html' %}
+{% load i18n %}
+
+{% block content %}
+        <h2>{% trans "Statistics" %}</h2>
+        <table class="table">
+            <tr>
+                <td>{% trans "Number of Lecturers" %}</td>
+                <td>{{ lecturer_count }}</td>
+            </tr>
+            <tr>
+                <td>{% trans "Number of Courses" %}</td>
+                <td>{{ courses_count }}</td>
+            </tr>
+            <tr>
+                <td>{% trans "Votes Mean" %}</td>
+                <td>{{ courses_votes_mean }}</td>
+            </tr>
+            <tr>
+                <td>{% trans "Lecturer with Highest Votes" %}</td>
+                <td>{{ lecturer_best }}</td>
+            </tr>
+            <tr>
+                <td>{% trans "Votes Mean for" %} {{ lecturer_best }}</td>
+                <td>{{ lecturer_best_votes_mean }}</td>
+            </tr>
+        </table>
+{% endblock %}

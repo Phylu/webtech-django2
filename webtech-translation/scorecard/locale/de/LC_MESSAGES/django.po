@@ -1,0 +1,112 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-04-01 22:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/scorecard/base.html:14
+msgid "A"
+msgstr "Eine"
+
+#: templates/scorecard/base.html:14
+msgid "page by"
+msgstr "Seite von"
+
+#: templates/scorecard/base.html:20
+msgid "Home"
+msgstr "Start"
+
+#: templates/scorecard/base.html:21 templates/scorecard/statistics.html:5
+msgid "Statistics"
+msgstr "Statistik"
+
+#: templates/scorecard/details.html:9
+msgid "Title"
+msgstr "Titel"
+
+#: templates/scorecard/details.html:13
+msgid "Lecturer"
+msgstr "Dozent"
+
+#: templates/scorecard/details.html:17
+msgid "Votes"
+msgstr "Stimmen"
+
+#: templates/scorecard/details.html:23
+msgid "Course not available."
+msgstr "Kurs nicht verfügbar."
+
+#: templates/scorecard/index.html:10
+msgid "has"
+msgstr "hat"
+
+#: templates/scorecard/index.html:10
+#, python-format
+msgid "%(counter)s vote."
+msgid_plural "%(counter)s votes."
+msgstr[0] "%(counter)s Stimme."
+msgstr[1] "%(counter)s Stimmen."
+
+#: templates/scorecard/index.html:18
+msgid ""
+"You usually can only vote once. If you want to vote again, I can make an "
+"exception for you."
+msgstr ""
+"Normalerweise darfst du nur einmal abstimmen. Wenn du magst, kann ich eine "
+"Ausnahme für dich machen."
+
+#: templates/scorecard/index.html:18
+msgid "Vote again?"
+msgstr "Nomal abstimmen?"
+
+#: templates/scorecard/index.html:23
+msgid "No courses available"
+msgstr "Keine Kurse verfügbar"
+
+#: templates/scorecard/statistics.html:8
+msgid "Number of Lecturers"
+msgstr "Anzahl Dozenten"
+
+#: templates/scorecard/statistics.html:12
+msgid "Number of Courses"
+msgstr "Anzahl Kurse"
+
+#: templates/scorecard/statistics.html:16
+#, fuzzy
+#| msgid "Votes"
+msgid "Votes Mean"
+msgstr "Mittelwert Stimmanzahl"
+
+#: templates/scorecard/statistics.html:20
+msgid "Lecturer with Highest Votes"
+msgstr "Dozent mit den meisten Stimmen"
+
+#: templates/scorecard/statistics.html:24
+msgid "Votes Mean for"
+msgstr "Stimmen Mittelwert für"
+
+#: views.py:54
+msgid "You have already voted!"
+msgstr "Du hast bereits abgestimmt!"
+
+#: views.py:57
+msgid "Vote Successful!"
+msgstr "Abstimmung erfolgreich!"
+
+#: views.py:60
+msgid "Vote Not Successful!"
+msgstr "Abstimmung nicht erfolgreich!"

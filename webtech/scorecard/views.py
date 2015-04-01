@@ -1,10 +1,8 @@
-import datetime
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.views import generic
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.utils.translation import ugettext as _
 from django.db.models import Avg
 import sys
 
@@ -52,13 +50,13 @@ def vote(request, pk, vote):
     # If there is no course with the corresponding pk return an error
     course = get_object_or_404(Course, pk=pk)
     if has_already_voted(request):
-        messages.add_message(request, messages.ERROR, _("You have already voted!"))
+        messages.add_message(request, messages.ERROR, "You have already voted!")
     elif update_vote(course, vote):
         set_voted(request, True)
-        messages.add_message(request, messages.SUCCESS, _("Vote Successful!"))
+        messages.add_message(request, messages.SUCCESS, "Vote Successful!")
     else:
         # Vote invalid
-        messages.add_message(request, messages.ERROR, _("Vote Not Successful!"))
+        messages.add_message(request, messages.ERROR, "Vote Not Successful!")
     return redirect_to_index()
 
 

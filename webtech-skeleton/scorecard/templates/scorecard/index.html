@@ -1,15 +1,24 @@
-<!-- Make the connection to djangos static file system -->
-{% load staticfiles %}
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>Scorecard</title>
-    <!-- Load stylesheets as static files -->
-    <link rel="stylesheet" type="text/css" href="{% static 'scorecard/bootstrap/css/bootstrap.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'scorecard/style.css' %}" />
-</head>
-<body>
+{% extends 'scorecard/base.html' %}
 
-</body>
-</html>
+{% block content %}
+    {% if object_list %}
+        <ul>
+        <!-- Iterate over the courses -->
+            {% for course in object_list %}
+                <!-- List a course and the voting possibilities -->
+                <li><strong><a href="{% url 'scorecard:details' course.pk %}">{{ course }}</a></strong> has {{ course.votes }} vote{{ course.votes|pluralize }}
+                    (<a href="{% url 'scorecard:vote' course.pk 1 %}"><span class="glyphicon glyphicon glyphicon-thumbs-up" aria-hidden="true"></span></a>
+            <a href="{% url 'scorecard:vote' course.pk -1 %}"><span class="glyphicon glyphicon glyphicon-thumbs-down" aria-hidden="true"></span></a>)
+        </li>
+    {% endfor %}
+    </ul>
+    {% if request.session.has_voted %}
+        <div class="alert alert-info">
+        You usually can only vote once. If you want to vote again, I can make an exception for you. <a href="{% url 'scorecard:vote_again' %}">Vote Again?</a>
+        </div>
+    {% endif %}
+    {% else %}
+        <!-- Show an error if no course existing -->
+        <div class="alert alert-info" role="alert">No courses available</div>
+    {% endif %}
+{% endblock %}

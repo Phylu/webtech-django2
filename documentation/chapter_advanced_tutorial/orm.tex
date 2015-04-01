@@ -157,3 +157,36 @@ Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
 
 \subsection{Raw SQL Queries}
 Using the \lstinline|raw()| method it is also possible to write raw SQL statements. This gives the programmer much freedom, however unescaped SQL statements may open the application for SQL injection attacks. So use this feature wisely. I will only refer to the django manual at this point\footnote{\url{https://docs.djangoproject.com/en/1.7/topics/db/sql/}}.
+
+
+\subsection{Examples}
+
+Several of those ORM techniques are used to create the statistics page for the scoreboard application. The \lstinline|get_best_lecturer_with_mean()| function returns the lecturer object with the highest votes mean and the votes mean itself. The statistics view sets the context for the information to be shown in the template.
+\begin{lstlisting}[style=Python, caption=Statistics view, label=lst:statistics_view]
+def get_best_lecturer_with_mean():
+    best_lecturer = None
+    best_lecturer_mean = -sys.maxsize
+    lecturer_votes = Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
+    for lecturer_vote in lecturer_votes:
+        if lecturer_vote['avg_votes'] > best_lecturer_mean:
+            best_lecturer = lecturer_vote['lecturer']
+            best_lecturer_mean = lecturer_vote['avg_votes']
+    best_lecturer = Lecturer.objects.get(pk=best_lecturer)
+    return best_lecturer, best_lecturer_mean
+    
+def statistics(request):
+    """
+    Show statistics page
+    :param request:
+    :return:
+    """
+    best_lecturer, best_lecturer_mean = get_best_lecturer_with_mean()
+    context = {
+        'lecturer_count': Lecturer.objects.count(),
+        'courses_count': Course.objects.count(),
+        'courses_votes_mean': Course.objects.aggregate(Avg('votes'))['votes__avg'],
+        'lecturer_best': best_lecturer,
+        'lecturer_best_votes_mean': best_lecturer_mean,
+    }
+    return render(request, 'scorecard/statistics.html', context)
+\end{lstlisting}
