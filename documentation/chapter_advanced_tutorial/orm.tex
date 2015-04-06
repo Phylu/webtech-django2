@@ -164,15 +164,11 @@ Using the \lstinline|raw()| method it is also possible to write raw SQL statemen
 Several of those ORM techniques are used to create the statistics page for the scoreboard application. The \lstinline|get_best_lecturer_with_mean()| function returns the lecturer object with the highest votes mean and the votes mean itself. The statistics view sets the context for the information to be shown in the template.
 \begin{lstlisting}[style=Python, caption=Statistics view, label=lst:statistics_view]
 def get_best_lecturer_with_mean():
-    best_lecturer = None
-    best_lecturer_mean = -sys.maxsize
-    lecturer_votes = Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
-    for lecturer_vote in lecturer_votes:
-        if lecturer_vote['avg_votes'] > best_lecturer_mean:
-            best_lecturer = lecturer_vote['lecturer']
-            best_lecturer_mean = lecturer_vote['avg_votes']
-    best_lecturer = Lecturer.objects.get(pk=best_lecturer)
-    return best_lecturer, best_lecturer_mean
+    avg_votes = Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
+    max_avg = avg_votes.aggregate(max_avg=Max('avg_votes'))['max_avg']
+    best_lecturer_query_result = avg_votes.filter(avg_votes__exact=max_avg
+    best_lecturer = Lecturer.objects.get(pk=best_lecturer_query_result[0]['lecturer'])
+    return best_lecturer, max_avg
     
 def statistics(request):
     """
