@@ -1,6 +1,6 @@
 \section{Object-Relational Mapping}
 
-Django stores the objects of its models in a relational database. To access these from within the programming environment Object-Relational Mapping (ORM) is used. Each model is represented by a table with the model's attributes as its columns. ORM allows the programmer to access the stored models in an easy way.
+Django stores the objects of its models in a relational database. To access these from within the programming environment, Object-Relational Mapping (ORM) is used. Each model is represented by a table with the model's attributes as its columns. ORM allows the programmer to access the stored models in an easy way.
 
 \subsection{Lecturer and Course Model}
 The following models are used for the scoreboard application:
@@ -115,18 +115,18 @@ Lecturer.objects.filter(first_name__exact=F('last_name'))
 
 Several filter statements are connected with a logical and. To create more sophisticated queries for example with or statements or negations, one can use the \lstinline|Q()| method.
 
-The filter statements in the 2nd and 3rd line yield the same results. They return all lecturers whose first name contains the string Alex \emph{and} the last name does not contain the string Matthes.
+The filter statements in the 2nd and 3rd line yield the same results. They return all lecturers whose first name contains the string Alex \emph{and} the last name does not contain the string Shumaiev.
 
-The statement in the 4th line however returns all lecturers whose first name contains Alex \emph{or} the last name contains Matthes.
+The statement in the 4th line however returns all lecturers whose first name contains Alex \emph{or} the last name contains Shumaiev.
 
-The last statement filters all lecturers whose first name contains Alex \emph{or} the last name contains \emph{not} Matthes.
+The last statement filters all lecturers whose first name contains Alex \emph{or} the last name contains \emph{not} Shumaiev.
 
 \begin{lstlisting}[style=Python, caption=Filtering objects with or statements and negations, label=lst:filtering_objects_or]
 from django.db.models import Q
-Lecturer.objects.filter(first_name__contains='Alex', last_name__contains='Matthes')
-Lecturer.objects.filter(Q(first_name__contains='Alex'), Q(last_name__contains='Matthes'))
-Lecturer.objects.filter(Q(first_name__contains='Alex') | Q(last_name__contains='Matthes'))
-Lecturer.objects.filter(Q(first_name__contains='Alex') | ~Q(last_name__contains='Matthes'))
+Lecturer.objects.filter(first_name__contains='Alex', last_name__contains='Shumaiev')
+Lecturer.objects.filter(Q(first_name__contains='Alex'), Q(last_name__contains='Shumaiev'))
+Lecturer.objects.filter(Q(first_name__contains='Alex') | Q(last_name__contains='Shumaiev'))
+Lecturer.objects.filter(Q(first_name__contains='Alex') | ~Q(last_name__contains='Shumaiev'))
 \end{lstlisting}
 
 \subsection{Aggregation}
@@ -138,7 +138,7 @@ Course.objects.count()
 
 Further aggregation needs the corresponding imports from the django model class.
 
-The command in line 1 and 2 get the average, respectively maximum votes of the stored courses.
+The command in line 2 and 3 get the average, respectively maximum votes of the stored courses.
 
 The filter in line 4 gives all courses, who are voted highest of all courses.
 \begin{lstlisting}[style=Python, caption=Average and Maximum values of objects, label=lst:objects_aggregations]

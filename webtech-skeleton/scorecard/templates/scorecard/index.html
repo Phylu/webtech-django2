@@ -12,11 +12,6 @@
         </li>
     {% endfor %}
     </ul>
-    {% if request.session.has_voted %}
-        <div class="alert alert-info">
-        You usually can only vote once. If you want to vote again, I can make an exception for you. <a href="{% url 'scorecard:vote_again' %}">Vote Again?</a>
-        </div>
-    {% endif %}
     {% else %}
         <!-- Show an error if no course existing -->
         <div class="alert alert-info" role="alert">No courses available</div>

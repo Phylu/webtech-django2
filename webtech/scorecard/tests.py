@@ -1,8 +1,12 @@
+import random
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from scorecard.models import Course, Lecturer
+from datetime import datetime
+from numpy import mean
 
+from scorecard.models import Course, Lecturer
+from scorecard.views import get_best_lecturer_with_mean, get_best_lecturer_with_mean_2
 
 class ScoreboardTest(TestCase):
     lecturer_1 = Lecturer()
@@ -147,3 +151,24 @@ class ScoreboardTest(TestCase):
         response = self.client.get(reverse('scorecard:statistics'))
         self.assertEqual(response.context['lecturer_best'], self.lecturer_1)
         self.assertEqual(response.context['lecturer_best_votes_mean'], 2)
+
+    def test_means_time(self):
+        for i in range(2, 1000):
+            l = Lecturer(first_name="Test {0}".format(i), last_name="Test {0}".format(i))
+            l.save()
+        for i in range(3, 10000):
+            random.seed("")
+            j = random.randint(0, 10)
+            c = Course(course_title="Test {0}".format(i), votes=(random.randint(-100, 200)), lecturer=Lecturer.objects.get(pk=j))
+            c.save()
+        times = []
+        for i in range(0, 1000):
+            t = datetime.now()
+            get_best_lecturer_with_mean()
+            times.append(datetime.now() - t)
+        print("get_lecturer_with_mean: {0}".format(mean(times)))
+        for i in range(0, 1000):
+            t = datetime.now()
+            get_best_lecturer_with_mean_2()
+            times.append(datetime.now() - t)
+        print("get_lecturer_with_mean_2: {0}".format(mean(times)))

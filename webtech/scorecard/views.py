@@ -1,4 +1,3 @@
-import datetime
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.views import generic
@@ -32,7 +31,6 @@ def has_already_voted(request):
 
 
 def get_best_lecturer_with_mean():
-    t = datetime.datetime.now()
     best_lecturer = None
     best_lecturer_mean = -sys.maxsize
     lecturer_votes = Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
@@ -41,20 +39,19 @@ def get_best_lecturer_with_mean():
             best_lecturer = lecturer_vote['lecturer']
             best_lecturer_mean = lecturer_vote['avg_votes']
     best_lecturer = Lecturer.objects.get(pk=best_lecturer)
-    print(datetime.datetime.now() - t)
     return best_lecturer, best_lecturer_mean
 
 
 def get_best_lecturer_with_mean_2():
-    t = datetime.datetime.now()
     avg_votes = Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
-    best_lecturer_query_result = avg_votes.filter(
-        avg_votes__exact=avg_votes.aggregate(max_avg=Max('avg_votes'))['max_avg'])
-    print(best_lecturer_query_result[0])
+    print(avg_votes)
+    max_avg = avg_votes.aggregate(max_avg=Max('avg_votes'))['max_avg']
+    print(max_avg)
+    best_lecturer_query_result = avg_votes.filter(avg_votes__exact=max_avg)
+    print(best_lecturer_query_result)
     best_lecturer = Lecturer.objects.get(pk=best_lecturer_query_result[0]['lecturer'])
-    best_lecturer_mean = best_lecturer_query_result[0]['avg_votes']
-    print(datetime.datetime.now() - t)
-    return best_lecturer, best_lecturer_mean
+    print(best_lecturer)
+    return best_lecturer, max_avg
 
 
 def vote(request, pk, vote):

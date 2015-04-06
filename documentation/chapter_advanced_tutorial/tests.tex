@@ -3,11 +3,9 @@
 Django has a sophisticated testing framework. You can directly test your functions with unit tests and do also further tests that simulate requests. The file \emph{scorecard/tests.py} contains the tests for the scorecard application. Test-driven development and continuous integration are posible with django.
 
 \subsection{Configure the Testing Environment}
-The \lstinline|setUp()| method (line 14) creates objects for the test cases. It is run automatically by the testing environment before each test. The test methods will use the defined lecturers and courses to run their tests.
+The class ScoreboardTest contains the tests for the scoreboard application. When tests are run, the application creates an extra database for the tests. all data in your productive environment is not touched. The \lstinline|setUp()| method (line 14) creates objects for the test cases. It is run automatically by the testing environment before each test. The test methods will use the defined lecturers and courses to run their tests.
 
-The class ScoreboardTest contains the tests for the scoreboard application. When tests are run, the application creates an extra database for the tests. all data in your productive environment is not touched.
-
-\begin{lstlisting}[style=Python, 	, label=lst:tests.py]
+\begin{lstlisting}[style=Python, caption=Exceprt from scorecard/tests.py, label=lst:tests.py]
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
@@ -32,7 +30,7 @@ class ScoreboardTest(TestCase):
         self.course_3 = Course.objects.create(course_title="Webtech", votes=0, lecturer=self.lecturer_2)
 \end{lstlisting}
 
-The test functions use several othe methods for convenience. Important is \lstinline|vote()| (line 10), which takes a course and either 1 or -1 and votes the course up and down. The function returns the votes before and after the vote. This is not done directly within the model but using the views. \lstinline|self.client.get()| runs a get request on a page of the project. \lstinline|reverse| does a lookup in the \emph{urls.py} file to get the correct URL. \lstinline|vote_again()| (line 24) calls the vote\_again page to reenable the voting if a user in this session has already voted. This functionality is covered in section \ref{ssec:session} of this tutorial.
+The test functions use several other methods for convenience. Important is \lstinline|vote()| (line 10), which takes a course and either 1 or -1 and votes the course up and down. The function returns the votes before and after the vote. This is not done directly within the model but using the views. \lstinline|self.client.get()| runs a get request on a page of the project. \lstinline|reverse| does a lookup in the \emph{urls.py} file to get the correct URL. \lstinline|vote_again()| (line 24) calls the vote\_again page to reenable the voting if a user in this session has already voted. This functionality is covered in section \ref{ssec:session} of this tutorial.
 
 \begin{lstlisting}[style=Python, caption=Exceprt from scorecard/tests.py, label=lst:tests.py]
     def delete_courses(self):
