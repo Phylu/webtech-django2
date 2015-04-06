@@ -1,9 +1,10 @@
+import datetime
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.views import generic
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.db.models import Avg
+from django.db.models import Avg, Max
 import sys
 
 from scorecard.models import Course, Lecturer
@@ -11,6 +12,7 @@ from scorecard.models import Course, Lecturer
 
 def redirect_to_index():
     return HttpResponseRedirect(reverse('scorecard:index'))
+
 
 def update_vote(course, vote):
     vote = int(vote)
@@ -20,13 +22,17 @@ def update_vote(course, vote):
         return True
     return False
 
+
 def set_voted(request, voted):
     request.session['has_voted'] = voted
+
 
 def has_already_voted(request):
     return request.session.get('has_voted', False)
 
+
 def get_best_lecturer_with_mean():
+    t = datetime.datetime.now()
     best_lecturer = None
     best_lecturer_mean = -sys.maxsize
     lecturer_votes = Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
@@ -35,7 +41,21 @@ def get_best_lecturer_with_mean():
             best_lecturer = lecturer_vote['lecturer']
             best_lecturer_mean = lecturer_vote['avg_votes']
     best_lecturer = Lecturer.objects.get(pk=best_lecturer)
+    print(datetime.datetime.now() - t)
     return best_lecturer, best_lecturer_mean
+
+
+def get_best_lecturer_with_mean_2():
+    t = datetime.datetime.now()
+    avg_votes = Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
+    best_lecturer_query_result = avg_votes.filter(
+        avg_votes__exact=avg_votes.aggregate(max_avg=Max('avg_votes'))['max_avg'])
+    print(best_lecturer_query_result[0])
+    best_lecturer = Lecturer.objects.get(pk=best_lecturer_query_result[0]['lecturer'])
+    best_lecturer_mean = best_lecturer_query_result[0]['avg_votes']
+    print(datetime.datetime.now() - t)
+    return best_lecturer, best_lecturer_mean
+
 
 def vote(request, pk, vote):
     """
@@ -66,7 +86,7 @@ def statistics(request):
     :param request:
     :return:
     """
-    best_lecturer, best_lecturer_mean = get_best_lecturer_with_mean()
+    best_lecturer, best_lecturer_mean = get_best_lecturer_with_mean_2()
     context = {
         'lecturer_count': Lecturer.objects.count(),
         'courses_count': Course.objects.count(),
