@@ -45,7 +45,7 @@ def get_best_lecturer_with_mean():
 def get_best_lecturer_with_mean_2():
     avg_votes = Course.objects.values('lecturer').annotate(avg_votes=Avg('votes'))
     max_avg = avg_votes.aggregate(max_avg=Max('avg_votes'))['max_avg']
-    best_lecturer_query_result = avg_votes.filter(avg_votes__exact=max_avg
+    best_lecturer_query_result = avg_votes.filter(avg_votes__exact=max_avg)
     best_lecturer = Lecturer.objects.get(pk=best_lecturer_query_result[0]['lecturer'])
     return best_lecturer, max_avg
 
